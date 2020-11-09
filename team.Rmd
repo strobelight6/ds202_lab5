@@ -9,3 +9,77 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+### Load data
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(tidyr)
+acc <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/accident.csv", stringsAsFactors = FALSE)
+per <- read.csv("https://raw.githubusercontent.com/xdaiISU/ds202materials/master/hwlabs/fars2017/person.csv", stringsAsFactors = FALSE)
+```
+
+### 1. 
+Friday, Saturday and Sunday have more accidents than the rest of the week. It makes some sense that more accidents happen on the weekends
+```{r}
+acc %>%
+  ggplot(aes(x=DAY_WEEK)) +
+  geom_bar() +
+  xlab("Day of the week") +
+  ylab("# of Accidents") + 
+  scale_x_discrete(limits=c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+```
+
+### 2. 
+```{r}
+fatalPer <- per %>%
+  filter(INJ_SEV == 4)
+```
+
+### 3.
+```{r}
+dangerMakeByState = per %>%
+  filter(INJ_SEV == 4) %>%
+  filter(is.na(MAKE) == FALSE) %>%
+  group_by(STATE, MAKE) %>%
+  summarise(numFatal = n()) %>%
+  group_by(STATE) %>%
+  filter(numFatal == max(numFatal))
+```
+
+### 4.
+```{r}
+codes <- readxl::read_xlsx("FRPP_GLC_-_United_StatesSep292020.xlsx")
+
+```
+
+### 5.
+```{r}
+df <- full_join(acc, per, by=c("ST_CASE", "HOUR", "MINUTE", "STATE", "DAY", "MONTH"))
+```
+
+### 6.
+```{r}
+tallyVisual <- df %>%
+  filter(HOUR < 25, SEX < 3) %>%
+  group_by(DAY_WEEK, HOUR, SEX) %>%
+  summarise(numAccidents = n()) %>%
+  arrange(desc(numAccidents)) 
+
+tallyVisual$SEX <- as.factor(tallyVisual$SEX)
+levels(tallyVisual$SEX) <- c("Male", "Female")
+
+tallyVisual %>%
+  ggplot(aes(x=HOUR, weight=numAccidents, fill=SEX)) +
+  geom_bar() +
+  facet_wrap(~DAY_WEEK)
+```
+
+### 7.
+```{r}
+
+```
+
+### 8.
+```{r}
+
+```
