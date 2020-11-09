@@ -81,5 +81,27 @@ tallyVisual %>%
 
 ### 8.
 ```{r}
-
+summerWinter <- acc %>%
+  filter(MONTH %in% c(12,1,2,3,6,7,8,9))
+summerWinter %>% 
+  ggplot(aes(MONTH)) +
+  geom_bar() 
 ```
+
+In this graph I have removed months that are not Summer or Winter. We can tell that the number of accidents are higher in the Winter. 
+
+```{r}
+summerWinterGrouped <- summerWinter %>%
+  group_by(STATE, MONTH) %>% 
+  summarise(numAccidents = n()) %>%
+  arrange(desc(numAccidents)) 
+
+summerWinterGrouped %>% 
+  ggplot(aes(x=STATE, weight=numAccidents, fill=MONTH)) +
+  geom_bar() + 
+  coord_flip() + 
+  facet_wrap(~MONTH) +
+  ylab("Num Accidents")
+```
+
+It also looks like regardless of month, there are three states that are consistently ore dangerous. 
